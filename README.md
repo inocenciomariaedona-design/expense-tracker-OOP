@@ -1,2 +1,2 @@
 # expense-tracker
-Procedural
+Procedural -converted to OOP
