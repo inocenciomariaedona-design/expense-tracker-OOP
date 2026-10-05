@@ -7,6 +7,7 @@ class Expense:
 
 
 class ExpenseManager:
+
     def __init__(self):
         self.expenses = []
 
@@ -28,6 +29,7 @@ class ExpenseManager:
                 description,
                 date
             )
+
             return True
 
         return False
@@ -35,6 +37,7 @@ class ExpenseManager:
     def delete_expense(self, index):
         if 0 <= index < len(self.expenses):
             self.expenses.pop(index)
+
             return True
 
         return False
@@ -47,5 +50,14 @@ class ExpenseManager:
 
         for expense in self.expenses:
             total += expense.amount
+
+        return total
+
+    def calculate_category_total(self, category):
+        total = 0
+
+        for expense in self.expenses:
+            if expense.category == category:
+                total += expense.amount
 
         return total
