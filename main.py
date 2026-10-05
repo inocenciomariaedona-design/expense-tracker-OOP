@@ -1,12 +1,15 @@
-from expense import add_expense, get_expenses, calculate_total
-from category import get_categories
+from expense import ExpenseManager
+from category import CategoryManager
 
 
 def main():
+    expense_manager = ExpenseManager()
+    category_manager = CategoryManager()
+
     print("Expense Tracker")
     print("----------------")
 
-    add_expense(
+    expense_manager.add_expense(
         180,
         "Food",
         "Lunch",
@@ -15,17 +18,20 @@ def main():
 
     print("\nRecent Transactions:")
 
-    for expense in get_expenses():
+    for expense in expense_manager.get_expenses():
         print(
-            expense["description"],
+            expense.description,
             "- ₱",
-            expense["amount"]
+            expense.amount
         )
 
-    print("\nTotal spent: ₱", calculate_total())
+    print(
+        "\nTotal spent: ₱",
+        expense_manager.calculate_total()
+    )
 
     print("\nCategories:")
-    print(get_categories())
+    print(category_manager.get_categories())
 
 
 if __name__ == "__main__":

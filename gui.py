@@ -1,33 +1,20 @@
 import tkinter as tk
 from tkinter import messagebox, simpledialog
 
-
-# ============================================================
-# IMPORT EXPENSE FUNCTIONS
-# ============================================================
-
-from expense import (
-    add_expense,
-    edit_expense,
-    delete_expense,
-    get_expenses
-)
+from expense import ExpenseManager
+from category import CategoryManager
 
 
 # ============================================================
-# IMPORT CATEGORY FUNCTIONS
+# OOP DATA MANAGERS
 # ============================================================
 
-from category import (
-    get_categories,
-    add_category,
-    edit_category,
-    delete_category
-)
+expense_manager = ExpenseManager()
+category_manager = CategoryManager()
 
 
 # ============================================================
-# PROCEDURAL DATA STORES
+# CATEGORY COLORS
 # ============================================================
 
 category_colors = [
@@ -39,50 +26,38 @@ category_colors = [
     "#D509F0",
     "#FF9F40",
     "#EAFA0E",
-    "#36A2EB",  
-    "#4BC0C0",  
-    "#9966FF",  
-    "#FFCD56",  
-    "#FF8A65",  
-    "#66BB6A",  
-    "#AB47BC",  
-    "#26A69A",  
-    "#EC407A",  
-    "#5C6BC0",  
+    "#36A2EB",
+    "#4BC0C0",
+    "#9966FF",
+    "#FFCD56",
+    "#FF8A65",
+    "#66BB6A",
+    "#AB47BC",
+    "#26A69A",
+    "#EC407A",
+    "#5C6BC0",
     "#78909C"
 ]
 
 
 # ============================================================
-# PROCEDURAL CALCULATION FUNCTIONS
+# CALCULATION FUNCTIONS
 # ============================================================
 
 def calculate_total():
     """Calculates the total amount of all expenses."""
 
-    total = 0
-
-    for expense in get_expenses():
-        total += expense["amount"]
-
-    return total
+    return expense_manager.calculate_total()
 
 
 def calculate_category_total(category):
     """Calculates the total spending for one category."""
 
-    total = 0
-
-    for expense in get_expenses():
-
-        if expense["category"] == category:
-            total += expense["amount"]
-
-    return total
+    return expense_manager.calculate_category_total(category)
 
 
 # ============================================================
-# PROCEDURAL GUI UPDATE FUNCTIONS
+# GUI UPDATE FUNCTIONS
 # ============================================================
 
 def refresh_gui():
@@ -110,7 +85,7 @@ def update_category_legend():
     for widget in legend_frame.winfo_children():
         widget.destroy()
 
-    categories = get_categories()
+    categories = category_manager.get_categories()
 
     for index in range(len(categories)):
 
@@ -149,7 +124,7 @@ def update_category_bar():
     for widget in bar_container.winfo_children():
         widget.destroy()
 
-    categories = get_categories()
+    categories = category_manager.get_categories()
     total = calculate_total()
 
     if total == 0:
@@ -193,7 +168,7 @@ def update_transactions():
     for widget in transactions_container.winfo_children():
         widget.destroy()
 
-    expenses = get_expenses()
+    expenses = expense_manager.get_expenses()
 
     if len(expenses) == 0:
 
@@ -222,13 +197,14 @@ def update_transactions():
 
 
 # ============================================================
-# PROCEDURAL ACTION FUNCTIONS
+# ADD EXPENSE
 # ============================================================
 
 def open_add_expense():
     """Opens the Add Expense window."""
 
     window = tk.Toplevel(root)
+
     window.title("Add Expense")
     window.geometry("400x400")
     window.configure(bg="#F6F3E6")
@@ -246,6 +222,7 @@ def open_add_expense():
     )
 
     # Description
+
     tk.Label(
         window,
         text="Description",
@@ -268,6 +245,7 @@ def open_add_expense():
     )
 
     # Amount
+
     tk.Label(
         window,
         text="Amount",
@@ -290,6 +268,7 @@ def open_add_expense():
     )
 
     # Category
+
     tk.Label(
         window,
         text="Category",
@@ -302,7 +281,7 @@ def open_add_expense():
 
     category_var = tk.StringVar()
 
-    categories = get_categories()
+    categories = category_manager.get_categories()
 
     if categories:
         category_var.set(categories[0])
@@ -325,6 +304,7 @@ def open_add_expense():
     )
 
     # Date
+
     tk.Label(
         window,
         text="Date",
@@ -355,51 +335,63 @@ def open_add_expense():
         date = date_entry.get().strip()
 
         if not description:
+
             messagebox.showerror(
                 "Invalid Input",
                 "Please enter a description."
             )
+
             return
 
         if not amount:
+
             messagebox.showerror(
                 "Invalid Input",
                 "Please enter an amount."
             )
+
             return
 
         try:
             amount = float(amount)
 
         except ValueError:
+
             messagebox.showerror(
                 "Invalid Input",
                 "Amount must be a number."
             )
+
             return
 
         if amount <= 0:
+
             messagebox.showerror(
                 "Invalid Input",
                 "Amount must be greater than zero."
             )
+
             return
 
         if not category:
+
             messagebox.showerror(
                 "Invalid Input",
                 "Please select a category."
             )
+
             return
 
         if not date:
+
             messagebox.showerror(
                 "Invalid Input",
                 "Please enter a date."
             )
+
             return
 
-        add_expense(
+        expense_manager.add_expense(
             amount,
             category,
             description,
@@ -425,10 +417,14 @@ def open_add_expense():
     save_button.pack()
 
 
+# ============================================================
+# EDIT EXPENSE
+# ============================================================
+
 def open_edit_expense(index):
     """Opens the Edit Expense window."""
 
-    expenses = get_expenses()
+    expenses = expense_manager.get_expenses()
 
     if not (0 <= index < len(expenses)):
         return
@@ -436,6 +432,7 @@ def open_edit_expense(index):
     expense = expenses[index]
 
     window = tk.Toplevel(root)
+
     window.title("Edit Expense")
     window.geometry("400x400")
     window.configure(bg="#F6F3E6")
@@ -453,6 +450,7 @@ def open_edit_expense(index):
     )
 
     # Description
+
     tk.Label(
         window,
         text="Description",
@@ -470,7 +468,7 @@ def open_edit_expense(index):
 
     description_entry.insert(
         0,
-        expense["description"]
+        expense.description
     )
 
     description_entry.pack(
@@ -480,6 +478,7 @@ def open_edit_expense(index):
     )
 
     # Amount
+
     tk.Label(
         window,
         text="Amount",
@@ -497,7 +496,7 @@ def open_edit_expense(index):
 
     amount_entry.insert(
         0,
-        str(expense["amount"])
+        str(expense.amount)
     )
 
     amount_entry.pack(
@@ -507,6 +506,7 @@ def open_edit_expense(index):
     )
 
     # Category
+
     tk.Label(
         window,
         text="Category",
@@ -519,10 +519,10 @@ def open_edit_expense(index):
 
     category_var = tk.StringVar()
 
-    categories = get_categories()
+    categories = category_manager.get_categories()
 
     category_var.set(
-        expense["category"]
+        expense.category
     )
 
     category_menu = tk.OptionMenu(
@@ -543,6 +543,7 @@ def open_edit_expense(index):
     )
 
     # Date
+
     tk.Label(
         window,
         text="Date",
@@ -560,7 +561,7 @@ def open_edit_expense(index):
 
     date_entry.insert(
         0,
-        expense["date"]
+        expense.date
     )
 
     date_entry.pack(
@@ -578,44 +579,54 @@ def open_edit_expense(index):
         date = date_entry.get().strip()
 
         if not description:
+
             messagebox.showerror(
                 "Invalid Input",
                 "Please enter a description."
             )
+
             return
 
         try:
             amount = float(amount)
 
         except ValueError:
+
             messagebox.showerror(
                 "Invalid Input",
                 "Amount must be a number."
             )
+
             return
 
         if amount <= 0:
+
             messagebox.showerror(
                 "Invalid Input",
                 "Amount must be greater than zero."
             )
+
             return
 
         if not category:
+
             messagebox.showerror(
                 "Invalid Input",
                 "Please select a category."
             )
+
             return
 
         if not date:
+
             messagebox.showerror(
                 "Invalid Input",
                 "Please enter a date."
             )
+
             return
 
-        edit_expense(
+        expense_manager.edit_expense(
             index,
             amount,
             category,
@@ -642,10 +653,14 @@ def open_edit_expense(index):
     save_button.pack()
 
 
+# ============================================================
+# DELETE EXPENSE
+# ============================================================
+
 def delete_transaction(index):
     """Deletes an expense."""
 
-    expenses = get_expenses()
+    expenses = expense_manager.get_expenses()
 
     if not (0 <= index < len(expenses)):
         return
@@ -654,19 +669,25 @@ def delete_transaction(index):
 
     confirm = messagebox.askyesno(
         "Delete Expense",
-        f"Delete '{expense['description']}'?"
+        f"Delete '{expense.description}'?"
     )
 
     if confirm:
-        delete_expense(index)
+
+        expense_manager.delete_expense(index)
 
         refresh_gui()
 
+
+# ============================================================
+# CATEGORY MANAGEMENT
+# ============================================================
 
 def open_categories():
     """Opens the Category Management window."""
 
     window = tk.Toplevel(root)
+
     window.title("Categories")
     window.geometry("400x450")
     window.configure(bg="#F6F3E6")
@@ -702,7 +723,7 @@ def open_categories():
             tk.END
         )
 
-        for category in get_categories():
+        for category in category_manager.get_categories():
 
             category_listbox.insert(
                 tk.END,
@@ -726,7 +747,7 @@ def open_categories():
         if category is None:
             return
 
-        if add_category(category):
+        if category_manager.add_category(category):
 
             refresh_category_list()
             refresh_gui()
@@ -766,7 +787,7 @@ def open_categories():
         if new_category is None:
             return
 
-        result = edit_category(
+        result = category_manager.edit_category(
             index,
             new_category
         )
@@ -783,11 +804,12 @@ def open_categories():
         old_category, new_category = result
 
         # Update existing expenses using the old category
-        for expense in get_expenses():
 
-            if expense["category"] == old_category:
+        for expense in expense_manager.get_expenses():
 
-                expense["category"] = new_category
+            if expense.category == old_category:
+
+                expense.category = new_category
 
         refresh_category_list()
         refresh_gui()
@@ -811,14 +833,15 @@ def open_categories():
 
         index = selection[0]
 
-        categories = get_categories()
+        categories = category_manager.get_categories()
 
         selected_category = categories[index]
 
         # Prevent deleting a category currently being used
-        for expense in get_expenses():
 
-            if expense["category"] == selected_category:
+        for expense in expense_manager.get_expenses():
+
+            if expense.category == selected_category:
 
                 messagebox.showerror(
                     "Cannot Delete",
@@ -834,7 +857,7 @@ def open_categories():
 
         if confirm:
 
-            delete_category(index)
+            category_manager.delete_category(index)
 
             refresh_category_list()
             refresh_gui()
@@ -1041,7 +1064,7 @@ def create_transaction(parent, expense, index):
 
     transaction_name = tk.Label(
         details,
-        text=expense["description"],
+        text=expense.description,
         font=("Arial", 10, "bold"),
         bg="#FFFFFF"
     )
@@ -1052,7 +1075,7 @@ def create_transaction(parent, expense, index):
 
     transaction_sub = tk.Label(
         details,
-        text=f"{expense['category']}  |  {expense['date']}",
+        text=f"{expense.category}  |  {expense.date}",
         font=("Arial", 8),
         fg="#777777",
         bg="#FFFFFF"
@@ -1077,7 +1100,7 @@ def create_transaction(parent, expense, index):
 
     amount = tk.Label(
         actions,
-        text=f"- ₱ {expense['amount']:,.2f}",
+        text=f"- ₱ {expense.amount:,.2f}",
         font=("Arial", 10, "bold"),
         bg="#FFFFFF"
     )

@@ -1,42 +1,51 @@
-expenses = []
+class Expense:
+    def __init__(self, amount, category, description, date):
+        self.amount = float(amount)
+        self.category = category
+        self.description = description
+        self.date = date
 
 
-def add_expense(amount, category, description, date):
-    expense = {
-        "amount": float(amount),
-        "category": category,
-        "description": description,
-        "date": date
-    }
+class ExpenseManager:
+    def __init__(self):
+        self.expenses = []
 
-    expenses.append(expense)
+    def add_expense(self, amount, category, description, date):
+        expense = Expense(
+            amount,
+            category,
+            description,
+            date
+        )
 
-def edit_expense(index, amount, category, description, date):
-    if 0 <= index < len(expenses):
-        expenses[index] = {
-            "amount": float(amount),
-            "category": category,
-            "description": description,
-            "date": date
-        }
-        return True
-    return False
+        self.expenses.append(expense)
 
-def delete_expense(index):
-    if 0 <= index < len(expenses):
-         expenses.pop(index)
-         return True
-    return False
+    def edit_expense(self, index, amount, category, description, date):
+        if 0 <= index < len(self.expenses):
+            self.expenses[index] = Expense(
+                amount,
+                category,
+                description,
+                date
+            )
+            return True
 
+        return False
 
-def get_expenses():
-    return expenses
+    def delete_expense(self, index):
+        if 0 <= index < len(self.expenses):
+            self.expenses.pop(index)
+            return True
 
+        return False
 
-def calculate_total():
-    total = 0
+    def get_expenses(self):
+        return self.expenses
 
-    for expense in expenses:
-        total += expense["amount"]
+    def calculate_total(self):
+        total = 0
 
-    return total
+        for expense in self.expenses:
+            total += expense.amount
+
+        return total
