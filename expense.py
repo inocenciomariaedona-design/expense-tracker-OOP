@@ -13,23 +13,62 @@ class Expense:
 class ExpenseManager:
     def __init__(self):
         self.expenses = []
+        self._load_from_database()
+
+    def _load_from_database(self):
+        try:
+            from database import get_expenses, initialize_database
+
+            initialize_database()
+            database_expenses = get_expenses()
+
+            self.expenses = [
+                Expense(
+                    item["amount"],
+                    item["category"],
+                    item["description"],
+                    item["date"],
+                )
+                for item in database_expenses
+            ]
+        except Exception:
+            self.expenses = []
+
+    def _persist_to_database(self):
+        try:
+            from database import save_expenses
+
+            save_expenses([
+                {
+                    "amount": expense.amount,
+                    "category": expense.category,
+                    "description": expense.description,
+                    "date": expense.date,
+                }
+                for expense in self.expenses
+            ])
+        except Exception:
+            pass
 
     def add_expense(self, amount, category, description, date):
         self.expenses.append(
             Expense(amount, category, description, date)
         )
+        self._persist_to_database()
 
     def edit_expense(self, index, amount, category, description, date):
         if 0 <= index < len(self.expenses):
             self.expenses[index] = Expense(
                 amount, category, description, date
             )
+            self._persist_to_database()
             return True
         return False
 
     def delete_expense(self, index):
         if 0 <= index < len(self.expenses):
             self.expenses.pop(index)
+            self._persist_to_database()
             return True
         return False
 
@@ -50,6 +89,7 @@ class ExpenseManager:
         for expense in self.expenses:
             if expense.category == old_category:
                 expense.category = new_category
+        self._persist_to_database()
 
     def is_category_used(self, category):
         return any(

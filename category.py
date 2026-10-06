@@ -1,12 +1,40 @@
 class CategoryManager:
     def __init__(self, max_categories):
-        self.categories = [
-            "Food",
-            "Transportation",
-            "Shopping",
-            "Bills"
-        ]
+        self.categories = []
         self.max_categories = max_categories
+        self._load_from_database()
+
+    def _load_from_database(self):
+        try:
+            from database import initialize_database, get_categories
+
+            initialize_database()
+            database_categories = get_categories()
+
+            if database_categories:
+                self.categories = database_categories
+            else:
+                self.categories = [
+                    "Food",
+                    "Transportation",
+                    "Shopping",
+                    "Bills",
+                ]
+        except Exception:
+            self.categories = [
+                "Food",
+                "Transportation",
+                "Shopping",
+                "Bills",
+            ]
+
+    def _persist_to_database(self):
+        try:
+            from database import save_categories
+
+            save_categories(self.categories)
+        except Exception:
+            pass
 
     def get_categories(self):
         return self.categories
@@ -20,6 +48,7 @@ class CategoryManager:
             and len(self.categories) < self.max_categories
         ):
             self.categories.append(category)
+            self._persist_to_database()
             return True
 
         return False
@@ -34,13 +63,16 @@ class CategoryManager:
         ):
             old_category = self.categories[index]
             self.categories[index] = new_category
+            self._persist_to_database()
             return old_category, new_category
 
         return None
 
     def delete_category(self, index):
         if 0 <= index < len(self.categories):
-            return self.categories.pop(index)
+            deleted = self.categories.pop(index)
+            self._persist_to_database()
+            return deleted
 
         return None
 
