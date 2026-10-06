@@ -10,8 +10,7 @@ from .widgets import (
     WHITE,
     ORANGE,
     ResponsiveCategoryLegend,
-    create_button,
-    create_card
+    create_button
 )
 from .expense_form import ExpenseForm
 from .expense_views import ExpenseViews
@@ -51,7 +50,11 @@ class ExpenseTrackerApp:
             bg=ORANGE,
             height=60
         )
-        header.pack(fill=tk.X)
+
+        header.pack(
+            fill=tk.X
+        )
+
         header.pack_propagate(False)
 
         tk.Label(
@@ -71,6 +74,7 @@ class ExpenseTrackerApp:
             self.root,
             bg=BACKGROUND
         )
+
         self.content.pack(
             fill=tk.BOTH,
             expand=True,
@@ -78,23 +82,32 @@ class ExpenseTrackerApp:
             pady=20
         )
 
+        # Left side expands with the window
         self.content.grid_columnconfigure(
             0,
             weight=1
         )
+
+        # Right side stays at its fixed button width
         self.content.grid_columnconfigure(
             1,
             weight=0
         )
+
         self.content.grid_rowconfigure(
             0,
             weight=1
         )
 
+        # -------------------------------------------------
+        # LEFT COLUMN
+        # -------------------------------------------------
+
         self.left_column = tk.Frame(
             self.content,
             bg=BACKGROUND
         )
+
         self.left_column.grid(
             row=0,
             column=0,
@@ -102,22 +115,41 @@ class ExpenseTrackerApp:
             padx=(0, 20)
         )
 
+        # IMPORTANT:
+        # Allows the white cards inside the left column
+        # to expand horizontally with the window.
+        self.left_column.grid_columnconfigure(
+            0,
+            weight=1
+        )
+
+        # The recent-transactions section expands vertically.
         self.left_column.grid_rowconfigure(
             1,
             weight=1
         )
+
+        # -------------------------------------------------
+        # RIGHT COLUMN
+        # -------------------------------------------------
 
         self.right_column = tk.Frame(
             self.content,
             bg=BACKGROUND,
             width=150
         )
+
         self.right_column.grid(
             row=0,
             column=1,
             sticky="n"
         )
+
         self.right_column.grid_propagate(False)
+
+        # -------------------------------------------------
+        # COMPONENTS
+        # -------------------------------------------------
 
         self._create_total_card()
         self._create_action_buttons()
@@ -128,6 +160,7 @@ class ExpenseTrackerApp:
             self.open_edit_expense,
             self.delete_transaction
         )
+
         self.left_column.grid_rowconfigure(
             1,
             weight=1
@@ -145,6 +178,7 @@ class ExpenseTrackerApp:
             padx=15,
             pady=15
         )
+
         card.grid(
             row=0,
             column=0,
@@ -160,7 +194,9 @@ class ExpenseTrackerApp:
             font=("Arial", 11),
             fg="#777777",
             bg=WHITE
-        ).pack(anchor="w")
+        ).pack(
+            anchor="w"
+        )
 
         self.total_amount_label = tk.Label(
             card,
@@ -168,6 +204,7 @@ class ExpenseTrackerApp:
             font=("Arial", 30, "bold"),
             bg=WHITE
         )
+
         self.total_amount_label.pack(
             anchor="w",
             pady=(0, 10)
@@ -184,9 +221,11 @@ class ExpenseTrackerApp:
             height=12,
             bg="#E0E0E0"
         )
+
         self.bar_container.pack(
             fill=tk.X
         )
+
         self.bar_container.pack_propagate(False)
 
     def _create_action_buttons(self):
@@ -208,17 +247,29 @@ class ExpenseTrackerApp:
         )
 
     def _on_window_resize(self, event):
+        # Only respond to the main application window.
         if event.widget != self.root:
             return
 
         width = self.root.winfo_width()
 
         if width < 760:
-            self.right_column.config(width=130)
-            self.content.config(padx=20)
+            self.right_column.config(
+                width=130
+            )
+
+            self.content.config(
+                padx=20
+            )
+
         else:
-            self.right_column.config(width=150)
-            self.content.config(padx=30)
+            self.right_column.config(
+                width=150
+            )
+
+            self.content.config(
+                padx=30
+            )
 
     def refresh(self):
         self._update_total()
@@ -316,6 +367,7 @@ class ExpenseTrackerApp:
                 description,
                 date_text
             )
+
         else:
             self.expense_manager.edit_expense(
                 index,
@@ -342,7 +394,10 @@ class ExpenseTrackerApp:
         )
 
         if confirm:
-            self.expense_manager.delete_expense(index)
+            self.expense_manager.delete_expense(
+                index
+            )
+
             self.refresh()
 
     def open_categories(self):
